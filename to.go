@@ -35,30 +35,23 @@ func main() {
 			Name:  "get",
 			Usage: "http get method",
 			Action: func(c *cli.Context) {
-				url := c.Args().Get(0)
-				if !(strings.HasPrefix(url, "http://") || strings.HasPrefix(url, "https://")) {
-					url = "http://" + url
-				}
-				resp, err := http.Get(url)
+				url := generateURL(c.Args().Get(0))
+
+				rq := New(http.MethodGet, url)
+				req, err := rq.NewRequest()
 				if err != nil {
-					fmt.Fprintln(os.Stderr, err)
+					fmt.Println(err)
+					return
+				}
+				resp, err := rq.Do(req)
+				if err != nil {
+					fmt.Println(err)
 					return
 				}
 				defer resp.Body.Close()
-
-				color.Yellow("%s %s\n", resp.Proto, resp.Status)
-				for key, values := range resp.Header {
-					for i := range values {
-						color.Blue("%s: %s\n", key, values[i])
-					}
-				}
+				printHeader(resp)
 				if !c.GlobalBool("header") {
-					data, err := ioutil.ReadAll(resp.Body)
-					if err != nil {
-						fmt.Fprintln(os.Stderr, err)
-						return
-					}
-					fmt.Println(string(data))
+					printBody(resp)
 				}
 			},
 		},
@@ -79,4 +72,31 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+// generateURL
+func generateURL(url string) string {
+	if !(strings.HasPrefix(url, "http://") || strings.HasPrefix(url, "https://")) {
+		url = "http://" + url
+	}
+	return url
+}
+
+// printHeader print response header
+func printHeader(resp *http.Response) {
+	color.Yellow("%s %s\n", resp.Proto, resp.Status)
+	for key, values := range resp.Header {
+		for i := range values {
+			color.Blue("%s: %s\n", key, values[i])
+		}
+	}
+}
+
+// printBody print response body
+func printBody(resp *http.Response) {
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(data))
 }
