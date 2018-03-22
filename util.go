@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bufio"
+	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
+	"os"
 	"regexp"
 	"strings"
 	"time"
@@ -44,11 +46,11 @@ func printHeader(resp *http.Response) {
 	blue := color.New(color.FgBlue)
 	code := resp.StatusCode
 	if code >= 100 && code < 300 {
-		color.Green("%s %s\n", resp.Proto, resp.Status)
+		color.Green("\n%s %s\n\n", resp.Proto, resp.Status)
 	} else if code >= 300 && code < 400 {
-		color.Yellow("%s %s\n", resp.Proto, resp.Status)
+		color.Yellow("\n%s %s\n\n", resp.Proto, resp.Status)
 	} else {
-		color.Red("%s %s\n", resp.Proto, resp.Status)
+		color.Red("\n%s %s\n\n", resp.Proto, resp.Status)
 	}
 	for key, values := range resp.Header {
 		for i := range values {
@@ -60,11 +62,68 @@ func printHeader(resp *http.Response) {
 
 // printBody print response body
 func printBody(resp *http.Response) {
-	data, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		panic(err)
+	fmt.Printf("\n-------------------------------------------------\n")
+	reader := bufio.NewReader(resp.Body)
+	for {
+		line, err := reader.ReadString('\n')
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			fmt.Println(err)
+		}
+		fmt.Print(line)
 	}
-	fmt.Println(string(data))
+}
+
+func download(resp *http.Response) {
+	name, err := getFileName(resp)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	path, _ := os.Getwd()
+	f, err := os.Create(path + "/" + name)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	writer := bufio.NewWriter(f)
+	reader := bufio.NewReader(resp.Body)
+
+	for {
+		b, err := reader.ReadByte()
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+		}
+		writer.WriteByte(b)
+	}
+	writer.Flush()
+	f.Close()
+}
+
+func getFileName(resp *http.Response) (string, error) {
+	var name string
+	h := resp.Header.Get("Content-Disposition")
+	if h == "" {
+		p := resp.Request.URL.Path
+		if p != "" {
+			typ := contentType(resp)
+			var suffix string
+			if Image(typ) {
+				suffix = "." + strings.Split(typ, "image/")[1]
+			}
+			ss := strings.Split(p, "/")
+			return ss[len(ss)-1] + suffix, nil
+		}
+		return "", errors.New("cann't found filename")
+	}
+	name = strings.Replace(h, "attachment;filename=", "", -1)
+	return name, nil
 }
 
 // ContentType get content-type

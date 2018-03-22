@@ -49,7 +49,13 @@ func main() {
 				defer resp.Body.Close()
 				printHeader(resp)
 				if !c.GlobalBool("header") {
-					printBody(resp)
+					typ := contentType(resp)
+					if Text(typ) {
+						printBody(resp)
+					} else {
+						fmt.Println("downloading file, wait a moment...")
+						download(resp)
+					}
 				}
 			},
 		},
