@@ -24,7 +24,7 @@ func main() {
 	app.Flags = []cli.Flag{
 		cli.BoolFlag{
 			Name:  "header, h",
-			Usage: "show http header",
+			Usage: "just show http header",
 		},
 	}
 
@@ -33,7 +33,12 @@ func main() {
 			Name:  "get",
 			Usage: "http get method",
 			Action: func(c *cli.Context) {
-				url := generateURL(c.Args().Get(0))
+				url := c.Args().Get(0)
+				if url == "" {
+					fmt.Println("param error: url empty")
+					return
+				}
+				url = generateURL(url)
 				method := strings.ToUpper(c.Command.Name)
 
 				req, err := NewRequest(method, url, nil)
@@ -48,14 +53,22 @@ func main() {
 				}
 				defer resp.Body.Close()
 				printHeader(resp)
+				typ := contentType(resp)
 				if !c.GlobalBool("header") {
-					typ := contentType(resp)
 					if Text(typ) {
 						printBody(resp)
-					} else {
-						fmt.Println("downloading file, wait a moment...")
-						download(resp)
+						return
 					}
+				}
+				if !Text(typ) && OctetStream(typ) && Image(typ) {
+					fmt.Println("\ndownloading file, wait a moment...")
+					download(resp)
+				} else {
+					fmt.Println()
+					fmt.Println("        |-------------------------------------|")
+					fmt.Println("        |       undefined content-type        |")
+					fmt.Println("        |-------------------------------------|")
+					return
 				}
 			},
 		},
