@@ -2,13 +2,11 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
-	"net/http"
 	"os"
 	"strings"
+	"time"
 
-	"github.com/fatih/color"
 	"github.com/urfave/cli"
 )
 
@@ -36,14 +34,14 @@ func main() {
 			Usage: "http get method",
 			Action: func(c *cli.Context) {
 				url := generateURL(c.Args().Get(0))
+				method := strings.ToUpper(c.Command.Name)
 
-				rq := New(http.MethodGet, url)
-				req, err := rq.NewRequest()
+				req, err := NewRequest(method, url, nil)
 				if err != nil {
 					fmt.Println(err)
 					return
 				}
-				resp, err := rq.Do(req)
+				resp, err := NewClient(10 * time.Second).Do(req)
 				if err != nil {
 					fmt.Println(err)
 					return
@@ -72,31 +70,4 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-
-// generateURL
-func generateURL(url string) string {
-	if !(strings.HasPrefix(url, "http://") || strings.HasPrefix(url, "https://")) {
-		url = "http://" + url
-	}
-	return url
-}
-
-// printHeader print response header
-func printHeader(resp *http.Response) {
-	color.Yellow("%s %s\n", resp.Proto, resp.Status)
-	for key, values := range resp.Header {
-		for i := range values {
-			color.Blue("%s: %s\n", key, values[i])
-		}
-	}
-}
-
-// printBody print response body
-func printBody(resp *http.Response) {
-	data, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(string(data))
 }
