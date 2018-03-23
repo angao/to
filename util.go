@@ -23,7 +23,7 @@ func NewRequest(method, url string, body io.Reader) (*http.Request, error) {
 		return nil, err
 	}
 	req.Header.Add("Referer", "http://angao.xyz")
-	req.Header.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.162 Safari/537.36")
+	req.Header.Add("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.162 Safari/537.36")
 	return req, nil
 }
 
@@ -208,8 +208,7 @@ func PrintUndefined() {
 }
 
 // HelpTemplate return help template
-func HelpTemplate() string {
-	return `Name:
+const HelpTemplate = `Name:
 	{{.Name}}{{if .Usage}} - {{.Usage}}{{end}}
  
 Usage:
@@ -236,4 +235,3 @@ Global Options:
 Copyright:
 	{{.Copyright}}{{end}}
  `
-}

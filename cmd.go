@@ -11,7 +11,8 @@ import (
 var reqParam string
 
 var (
-	getCommand = cli.Command{
+	// GetCommand http get
+	GetCommand = cli.Command{
 		Name:    "get",
 		Aliases: []string{"g"},
 		Usage:   "HTTP get method",
@@ -60,21 +61,33 @@ var (
 		},
 	}
 
-	postCommand = cli.Command{
+	// PostCommand http post
+	PostCommand = cli.Command{
 		Name:    "post",
 		Aliases: []string{"po"},
 		Usage:   "HTTP post method",
+		Action: func(c *cli.Context) {
+
+		},
 	}
 
-	putCommand = cli.Command{
+	// PutCommand http put
+	PutCommand = cli.Command{
 		Name:    "put",
 		Aliases: []string{"pt"},
 		Usage:   "HTTP put method",
+		Action: func(c *cli.Context) {
+
+		},
 	}
 
-	deleteCommand = cli.Command{
+	// DeleteCommand http delete
+	DeleteCommand = cli.Command{
 		Name:    "delete",
 		Aliases: []string{"d"},
 		Usage:   "HTTP delete method",
+		Action: func(c *cli.Context) {
+
+		},
 	}
 )

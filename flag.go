@@ -3,17 +3,20 @@ package main
 import "github.com/urfave/cli"
 
 var (
-	headerFlag = cli.BoolFlag{
+	// HeaderFlag show http header
+	HeaderFlag = cli.BoolFlag{
 		Name:  "header, h",
 		Usage: "Just show http header",
 	}
 
-	helpFlag = cli.BoolFlag{
+	// HelpFlag change default help
+	HelpFlag = cli.BoolFlag{
 		Name:  "help",
 		Usage: "Show help info",
 	}
 
-	versionFlag = cli.BoolFlag{
+	// VersionFlag change default version
+	VersionFlag = cli.BoolFlag{
 		Name:  "version, v",
 		Usage: "Print the versions",
 	}

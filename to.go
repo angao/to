@@ -7,11 +7,12 @@ import (
 	"github.com/urfave/cli"
 )
 
-// VERSION version
+// basic info
 const (
 	NAME    = "To"
-	USAGE   = " To is a command line for http."
-	VERSION = "0.0.1"
+	USAGE   = "To is a command line for HTTP."
+	VERSION = "0.0.2"
+	AUTHOR  = "Angao <gawaine2111@foxmail.com>"
 )
 
 func main() {
@@ -20,20 +21,20 @@ func main() {
 	app.Name = NAME
 	app.Usage = USAGE
 	app.Version = VERSION
-	cli.AppHelpTemplate = HelpTemplate()
+	app.Author = AUTHOR
+
+	cli.AppHelpTemplate = HelpTemplate
+	cli.HelpFlag = HelpFlag
+	cli.VersionFlag = VersionFlag
 
 	app.Flags = []cli.Flag{
-		headerFlag,
+		HeaderFlag,
 	}
-
-	cli.HelpFlag = helpFlag
-	cli.VersionFlag = versionFlag
-
 	app.Commands = []cli.Command{
-		getCommand,
-		postCommand,
-		putCommand,
-		deleteCommand,
+		GetCommand,
+		PostCommand,
+		PutCommand,
+		DeleteCommand,
 	}
 
 	err := app.Run(os.Args)
