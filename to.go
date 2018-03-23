@@ -13,18 +13,19 @@ import (
 func main() {
 	cli.HelpFlag = cli.BoolFlag{
 		Name:  "help",
-		Usage: "show help info",
+		Usage: "Show help info",
 	}
 	app := cli.NewApp()
 
 	app.Name = "To"
 	app.Usage = " To is a command line for http."
 	app.Version = "0.0.1"
+	cli.AppHelpTemplate = HelpTemplate()
 
 	app.Flags = []cli.Flag{
 		cli.BoolFlag{
 			Name:  "header, h",
-			Usage: "just show http header",
+			Usage: "Just show http header",
 		},
 	}
 
@@ -33,11 +34,11 @@ func main() {
 		{
 			Name:    "get",
 			Aliases: []string{"g"},
-			Usage:   "http get method",
+			Usage:   "HTTP get method",
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:        "param, p",
-					Usage:       "http request param",
+					Usage:       "HTTP request param",
 					Destination: &reqParam,
 				},
 			},
@@ -47,7 +48,7 @@ func main() {
 					fmt.Println("param error: url empty")
 					return
 				}
-				url = generateURL(url, reqParam)
+				url = GenerateURL(url, reqParam)
 				method := strings.ToUpper(c.Command.Name)
 
 				req, err := NewRequest(method, url, nil)
@@ -61,21 +62,21 @@ func main() {
 					return
 				}
 				defer resp.Body.Close()
-				printHeader(resp)
-				typ := contentType(resp)
+				PrintHeader(resp)
+				typ := ContentType(resp)
 				if !c.GlobalBool("header") {
 					if Text(typ) {
-						printBody(resp)
+						PrintBody(resp)
 						return
 					}
 				}
 				if !Text(typ) && OctetStream(typ) && Image(typ) {
 					fmt.Println("\ndownloading file, wait a moment...")
-					download(resp)
-				} else {
+					Download(resp)
+				} else if !Text(typ) {
 					fmt.Println()
 					fmt.Println("        |-------------------------------------|")
-					fmt.Println("        |       undefined content-type        |")
+					fmt.Println("        |       Undefined Content-Type        |")
 					fmt.Println("        |-------------------------------------|")
 					return
 				}
@@ -84,19 +85,20 @@ func main() {
 		{
 			Name:    "post",
 			Aliases: []string{"po"},
-			Usage:   "http post method",
+			Usage:   "HTTP post method",
 		},
 		{
 			Name:    "put",
 			Aliases: []string{"pt"},
-			Usage:   "http put method",
+			Usage:   "HTTP put method",
 		},
 		{
 			Name:    "delete",
 			Aliases: []string{"d"},
-			Usage:   "http delete method",
+			Usage:   "HTTP delete method",
 		},
 	}
+
 	err := app.Run(os.Args)
 	if err != nil {
 		log.Fatal(err)

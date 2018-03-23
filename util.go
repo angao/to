@@ -34,8 +34,8 @@ func NewClient(timeout time.Duration) *http.Client {
 	}
 }
 
-// generateURL
-func generateURL(rawurl, param string) string {
+// GenerateURL generate url by rawurl and param
+func GenerateURL(rawurl, param string) string {
 	if !(strings.HasPrefix(rawurl, "http://") || strings.HasPrefix(rawurl, "https://")) {
 		rawurl = "http://" + rawurl
 	}
@@ -75,8 +75,8 @@ func generateQuery(param string) *url.Values {
 	return values
 }
 
-// printHeader print response header
-func printHeader(resp *http.Response) {
+// PrintHeader print response header
+func PrintHeader(resp *http.Response) {
 	yellow := color.New(color.FgYellow)
 	blue := color.New(color.FgBlue)
 	code := resp.StatusCode
@@ -95,8 +95,8 @@ func printHeader(resp *http.Response) {
 	}
 }
 
-// printBody print response body
-func printBody(resp *http.Response) {
+// PrintBody print response body
+func PrintBody(resp *http.Response) {
 	fmt.Printf("\n-------------------------------------------------\n")
 	reader := bufio.NewReader(resp.Body)
 	for {
@@ -111,7 +111,8 @@ func printBody(resp *http.Response) {
 	}
 }
 
-func download(resp *http.Response) {
+// Download download resource
+func Download(resp *http.Response) {
 	name, err := getFileName(resp)
 	if err != nil {
 		fmt.Println(err)
@@ -147,7 +148,7 @@ func getFileName(resp *http.Response) (string, error) {
 	if h == "" {
 		p := resp.Request.URL.Path
 		if p != "" {
-			typ := contentType(resp)
+			typ := ContentType(resp)
 			var suffix string
 			if Image(typ) {
 				suffix = "." + strings.Split(typ, "image/")[1]
@@ -162,7 +163,7 @@ func getFileName(resp *http.Response) (string, error) {
 }
 
 // ContentType get content-type
-func contentType(resp *http.Response) string {
+func ContentType(resp *http.Response) string {
 	return resp.Header.Get("Content-Type")
 }
 
@@ -196,4 +197,35 @@ func Text(typ string) bool {
 		return true
 	}
 	return false
+}
+
+// HelpTemplate return help template
+func HelpTemplate() string {
+	return `Name:
+	{{.Name}}{{if .Usage}} - {{.Usage}}{{end}}
+ 
+Usage:
+	{{if .UsageText}}{{.UsageText}}{{else}}{{.HelpName}} {{if .VisibleFlags}}[global options]{{end}}{{if .Commands}} command [command options]{{end}} {{if .ArgsUsage}}{{.ArgsUsage}}{{else}}[arguments...]{{end}}{{end}}{{if .Version}}{{if not .HideVersion}}
+ 
+Version:
+	{{.Version}}{{end}}{{end}}{{if .Description}}
+ 
+Description:
+	{{.Description}}{{end}}{{if len .Authors}}
+ 
+Author{{with $length := len .Authors}}{{if ne 1 $length}}S{{end}}{{end}}:
+	{{range $index, $author := .Authors}}{{if $index}}
+	{{end}}{{$author}}{{end}}{{end}}{{if .VisibleCommands}}
+ 
+Commands:{{range .VisibleCategories}}{{if .Name}}
+	{{.Name}}:{{end}}{{range .VisibleCommands}}
+	  {{join .Names ", "}}{{"\t"}}{{.Usage}}{{end}}{{end}}{{end}}{{if .VisibleFlags}}
+ 
+Global Options:
+	{{range $index, $option := .VisibleFlags}}{{if $index}}
+	{{end}}{{$option}}{{end}}{{end}}{{if .Copyright}}
+ 
+Copyright:
+	{{.Copyright}}{{end}}
+ `
 }
