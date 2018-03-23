@@ -199,6 +199,14 @@ func Text(typ string) bool {
 	return false
 }
 
+// PrintUndefined print undefined content type
+func PrintUndefined() {
+	fmt.Println()
+	fmt.Println("        |-------------------------------------|")
+	fmt.Println("        |       Undefined Content-Type        |")
+	fmt.Println("        |-------------------------------------|")
+}
+
 // HelpTemplate return help template
 func HelpTemplate() string {
 	return `Name:

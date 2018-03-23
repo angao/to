@@ -74,10 +74,7 @@ func main() {
 					fmt.Println("\ndownloading file, wait a moment...")
 					Download(resp)
 				} else if !Text(typ) {
-					fmt.Println()
-					fmt.Println("        |-------------------------------------|")
-					fmt.Println("        |       Undefined Content-Type        |")
-					fmt.Println("        |-------------------------------------|")
+					PrintUndefined()
 					return
 				}
 			},
