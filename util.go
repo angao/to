@@ -43,14 +43,14 @@ func GenerateURL(rawurl, param string) string {
 		values := &url.Values{}
 		// if param start with '{' and end with '}', then it's json
 		if strings.HasPrefix(param, "{") && strings.HasSuffix(param, "}") {
-			p := make(map[string]string)
+			p := make(map[string]interface{})
 			err := json.Unmarshal([]byte(param), &p)
 			if err != nil {
 				// param not a json string
 				values = generateQuery(param)
 			} else {
 				for key, val := range p {
-					values.Add(key, val)
+					values.Add(key, fmt.Sprintf("%v", val))
 				}
 			}
 		} else {
