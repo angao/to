@@ -2,10 +2,12 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"regexp"
 	"strings"
@@ -33,11 +35,44 @@ func NewClient(timeout time.Duration) *http.Client {
 }
 
 // generateURL
-func generateURL(url string) string {
-	if !(strings.HasPrefix(url, "http://") || strings.HasPrefix(url, "https://")) {
-		url = "http://" + url
+func generateURL(rawurl, param string) string {
+	if !(strings.HasPrefix(rawurl, "http://") || strings.HasPrefix(rawurl, "https://")) {
+		rawurl = "http://" + rawurl
 	}
-	return url
+	if param != "" {
+		values := &url.Values{}
+		// if param start with '{' and end with '}', then it's json
+		if strings.HasPrefix(param, "{") && strings.HasSuffix(param, "}") {
+			p := make(map[string]string)
+			err := json.Unmarshal([]byte(param), &p)
+			if err != nil {
+				// param not a json string
+				values = generateQuery(param)
+			} else {
+				for key, val := range p {
+					values.Add(key, val)
+				}
+			}
+		} else {
+			values = generateQuery(param)
+		}
+		return fmt.Sprintf("%s?%s", rawurl, values.Encode())
+	}
+	return rawurl
+}
+
+func generateQuery(param string) *url.Values {
+	values := &url.Values{}
+	subs := strings.Split(param, "&")
+	for _, s := range subs {
+		sub := strings.SplitN(s, "=", 2)
+		if len(sub) > 1 {
+			values.Add(sub[0], sub[1])
+		} else {
+			values.Add(sub[0], "")
+		}
+	}
+	return values
 }
 
 // printHeader print response header

@@ -28,17 +28,26 @@ func main() {
 		},
 	}
 
+	var reqParam string
 	app.Commands = []cli.Command{
 		{
-			Name:  "get",
-			Usage: "http get method",
+			Name:    "get",
+			Aliases: []string{"g"},
+			Usage:   "http get method",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:        "param, p",
+					Usage:       "http request param",
+					Destination: &reqParam,
+				},
+			},
 			Action: func(c *cli.Context) {
 				url := c.Args().Get(0)
 				if url == "" {
 					fmt.Println("param error: url empty")
 					return
 				}
-				url = generateURL(url)
+				url = generateURL(url, reqParam)
 				method := strings.ToUpper(c.Command.Name)
 
 				req, err := NewRequest(method, url, nil)
@@ -73,16 +82,19 @@ func main() {
 			},
 		},
 		{
-			Name:  "post",
-			Usage: "http post method",
+			Name:    "post",
+			Aliases: []string{"po"},
+			Usage:   "http post method",
 		},
 		{
-			Name:  "put",
-			Usage: "http put method",
+			Name:    "put",
+			Aliases: []string{"pt"},
+			Usage:   "http put method",
 		},
 		{
-			Name:  "delete",
-			Usage: "http delete method",
+			Name:    "delete",
+			Aliases: []string{"d"},
+			Usage:   "http delete method",
 		},
 	}
 	err := app.Run(os.Args)
