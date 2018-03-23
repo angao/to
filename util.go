@@ -81,11 +81,11 @@ func PrintHeader(resp *http.Response) {
 	blue := color.New(color.FgBlue)
 	code := resp.StatusCode
 	if code >= 100 && code < 300 {
-		color.Green("\n%s %s\n\n", resp.Proto, resp.Status)
+		color.Green("%s %s\n", resp.Proto, resp.Status)
 	} else if code >= 300 && code < 400 {
-		color.Yellow("\n%s %s\n\n", resp.Proto, resp.Status)
+		color.Yellow("%s %s\n", resp.Proto, resp.Status)
 	} else {
-		color.Red("\n%s %s\n\n", resp.Proto, resp.Status)
+		color.Red("%s %s\n", resp.Proto, resp.Status)
 	}
 	for key, values := range resp.Header {
 		for i := range values {
