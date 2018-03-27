@@ -34,11 +34,16 @@ func NewClient(timeout time.Duration) *http.Client {
 	}
 }
 
-// GenerateURL generate url by rawurl and param
-func GenerateURL(rawurl, param string) string {
+// GenerateURL generate url by rawurl
+func GenerateURL(rawurl string) string {
 	if !(strings.HasPrefix(rawurl, "http://") || strings.HasPrefix(rawurl, "https://")) {
 		rawurl = "http://" + rawurl
 	}
+	return rawurl
+}
+
+// GenerateParam request param
+func GenerateParam(param string) io.Reader {
 	if param != "" {
 		values := &url.Values{}
 		// if param start with '{' and end with '}', then it's json
@@ -46,7 +51,6 @@ func GenerateURL(rawurl, param string) string {
 			p := make(map[string]interface{})
 			err := json.Unmarshal([]byte(param), &p)
 			if err != nil {
-				// param not a json string
 				values = generateQuery(param)
 			} else {
 				for key, val := range p {
@@ -56,9 +60,9 @@ func GenerateURL(rawurl, param string) string {
 		} else {
 			values = generateQuery(param)
 		}
-		return fmt.Sprintf("%s?%s", rawurl, values.Encode())
+		return strings.NewReader(values.Encode())
 	}
-	return rawurl
+	return nil
 }
 
 func generateQuery(param string) *url.Values {

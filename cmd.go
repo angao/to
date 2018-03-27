@@ -10,6 +10,12 @@ import (
 
 var reqParam string
 
+var paramFlag = cli.StringFlag{
+	Name:        "param, p",
+	Usage:       "HTTP request param",
+	Destination: &reqParam,
+}
+
 var (
 	// GetCommand http get
 	GetCommand = cli.Command{
@@ -17,11 +23,7 @@ var (
 		Aliases: []string{"g"},
 		Usage:   "HTTP get method",
 		Flags: []cli.Flag{
-			cli.StringFlag{
-				Name:        "param, p",
-				Usage:       "HTTP request param",
-				Destination: &reqParam,
-			},
+			paramFlag,
 		},
 		Action: func(c *cli.Context) {
 			url := c.Args().Get(0)
@@ -29,15 +31,17 @@ var (
 				fmt.Println("param error: url empty")
 				return
 			}
-			url = GenerateURL(url, reqParam)
+			url = GenerateURL(url)
+			body := GenerateParam(reqParam)
 			method := strings.ToUpper(c.Command.Name)
 
-			req, err := NewRequest(method, url, nil)
+			req, err := NewRequest(method, url, body)
 			if err != nil {
 				fmt.Println(err)
 				return
 			}
-			resp, err := NewClient(10 * time.Second).Do(req)
+			req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+			resp, err := NewClient(15 * time.Second).Do(req)
 			if err != nil {
 				fmt.Println(err)
 				return
@@ -66,6 +70,9 @@ var (
 		Name:    "post",
 		Aliases: []string{"po"},
 		Usage:   "HTTP post method",
+		Flags: []cli.Flag{
+			paramFlag,
+		},
 		Action: func(c *cli.Context) {
 
 		},
