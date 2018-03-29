@@ -203,6 +203,27 @@ func Text(typ string) bool {
 	return false
 }
 
+// ValidContentType check content-type is valid
+func ValidContentType(typ string) bool {
+	types := []string{
+		"application/json",
+		"application/x-www-form-urlencoded",
+		"application/xml",
+		"multipart/form-data",
+		"text/xml",
+		"text/html",
+		"text/plain",
+		"text/css",
+		"text/javascript",
+	}
+	for _, val := range types {
+		if strings.Contains(typ, val) {
+			return true
+		}
+	}
+	return false
+}
+
 // PrintUndefined print undefined content type
 func PrintUndefined() {
 	fmt.Println()
